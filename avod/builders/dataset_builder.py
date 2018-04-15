@@ -178,16 +178,20 @@ class DatasetBuilder(object):
         Returns:
             KittiDataset object
         """
+        print("debug0",base_cfg.dataset_dir)
         cfg_copy = DatasetBuilder.copy_config(base_cfg)
 
         if use_defaults:
             # Use default values
             text_format.Merge(DatasetBuilder.CONFIG_DEFAULTS_PROTO, cfg_copy)
+            print("use default")
 
         if new_cfg:
             # Use new config values if provided
+            print("new default")
             cfg_copy.MergeFrom(new_cfg)
 
+        print("debug",cfg_copy.dataset_dir)
         return KittiDataset(cfg_copy)
 
 

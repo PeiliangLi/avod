@@ -8,7 +8,7 @@ import os
 from PIL import Image
 import tensorflow as tf
 
-from wavedata.tools.core import calib_utils
+from wavedata.wavedata.tools.core import calib_utils
 
 import avod
 from avod.core import box_3d_projector

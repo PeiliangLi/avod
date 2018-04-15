@@ -4,8 +4,8 @@ Returns the 4 points (x, y) of the corresponding box
 """
 import numpy as np
 
-from wavedata.tools.core import calib_utils
-from wavedata.tools.obj_detection import obj_utils
+from wavedata.wavedata.tools.core import calib_utils
+from wavedata.wavedata.tools.obj_detection import obj_utils
 
 from avod.core import box_3d_encoder
 from avod.core import format_checker

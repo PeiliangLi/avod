@@ -7,8 +7,8 @@ import os
 import numpy as np
 import cv2
 
-from wavedata.tools.core import calib_utils
-from wavedata.tools.obj_detection import obj_utils
+from wavedata.wavedata.tools.core import calib_utils
+from wavedata.wavedata.tools.obj_detection import obj_utils
 
 from avod.core import box_3d_encoder
 from avod.core import constants
@@ -39,12 +39,11 @@ class KittiDataset:
         """
         # Parse config
         self.config = dataset_config
-
         self.name = self.config.name
         self.data_split = self.config.data_split
         self.dataset_dir = os.path.expanduser(self.config.dataset_dir)
         data_split_dir = self.config.data_split_dir
-
+        print("data_split_dir",data_split_dir)
         self.has_labels = self.config.has_labels
         self.cluster_split = self.config.cluster_split
 
@@ -70,7 +69,7 @@ class KittiDataset:
 
         # Get all files and folders in dataset directory
         all_files = os.listdir(self.dataset_dir)
-
+        print("all_files",all_files)
         # Get possible data splits from txt files in dataset folder
         possible_splits = []
         for file_name in all_files:
@@ -79,7 +78,6 @@ class KittiDataset:
         # This directory contains a readme.txt file, remove it from the list
         if 'readme' in possible_splits:
             possible_splits.remove('readme')
-
         if self.data_split not in possible_splits:
             raise ValueError("Invalid data split: {}, possible_splits: {}"
                              .format(self.data_split, possible_splits))

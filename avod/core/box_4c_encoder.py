@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from wavedata.tools.core import geometry_utils
+from wavedata.wavedata.tools.core import geometry_utils
 
 from avod.core import box_3d_encoder
 from avod.core import format_checker

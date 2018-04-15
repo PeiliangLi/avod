@@ -1,7 +1,7 @@
 import numpy as np
 
-from wavedata.tools.core.integral_image import IntegralImage
-from wavedata.tools.core.integral_image_2d import IntegralImage2D
+from wavedata.wavedata.tools.core.integral_image import IntegralImage
+from wavedata.wavedata.tools.core.integral_image_2d import IntegralImage2D
 
 from avod.core import format_checker
 

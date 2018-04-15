@@ -1,6 +1,6 @@
 import numpy as np
 
-from wavedata.tools.core.voxel_grid_2d import VoxelGrid2D
+from wavedata.wavedata.tools.core.voxel_grid_2d import VoxelGrid2D
 
 from avod.core.bev_generators import bev_generator
 

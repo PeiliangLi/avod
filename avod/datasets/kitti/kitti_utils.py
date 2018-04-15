@@ -2,9 +2,9 @@ import os
 
 import numpy as np
 
-from wavedata.tools.core.voxel_grid_2d import VoxelGrid2D
-from wavedata.tools.core.voxel_grid import VoxelGrid
-from wavedata.tools.obj_detection import obj_utils
+from wavedata.wavedata.tools.core.voxel_grid_2d import VoxelGrid2D
+from wavedata.wavedata.tools.core.voxel_grid import VoxelGrid
+from wavedata.wavedata.tools.obj_detection import obj_utils
 
 from avod.builders import bev_generator_builder
 from avod.core.label_cluster_utils import LabelClusterUtils
