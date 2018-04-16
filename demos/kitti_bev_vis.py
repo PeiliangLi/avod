@@ -3,8 +3,8 @@ from google.protobuf import text_format
 import numpy as np
 import numpy.random as random
 
-from wavedata.tools.obj_detection import obj_utils
-from wavedata.tools.visualization import vis_utils
+from wavedata.wavedata.tools.obj_detection import obj_utils
+from wavedata.wavedata.tools.visualization import vis_utils
 
 from avod.builders.dataset_builder import DatasetBuilder
 from avod.core import box_3d_encoder

@@ -620,7 +620,7 @@ class RpnModel(model.DetectionModel):
         """
 
         if self._train_val_test in ["train", "val"]:
-
+            print("dict mode: train/val")
             # sample_index should be None
             if sample_index is not None:
                 raise ValueError('sample_index should be None. Do not load '
@@ -660,6 +660,7 @@ class RpnModel(model.DetectionModel):
                     valid_sample = True
         else:
             # For testing, any sample should work
+            print("dict mode: test", sample_index)
             if sample_index is not None:
                 samples = self.dataset.load_samples([sample_index])
             else:

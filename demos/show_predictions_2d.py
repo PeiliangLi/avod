@@ -201,7 +201,7 @@ def main():
                 predictions_and_scores_dir +
                 "/{}/{}.txt".format(global_step,
                                     sample_name))
-
+            print(predictions_and_scores_dir)
             prediction_boxes_3d = predictions_and_scores[:, 0:7]
             prediction_scores = predictions_and_scores[:, 7]
             prediction_class_indices = predictions_and_scores[:, 8]

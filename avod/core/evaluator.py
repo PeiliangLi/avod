@@ -148,7 +148,7 @@ class Evaluator:
         train_val_test = self.model._train_val_test
 
         validation = train_val_test == 'val'
-
+        print("validation:",validation)
         global_step = trainer_utils.get_global_step(
             self._sess, self.global_step_tensor)
 
@@ -183,6 +183,7 @@ class Evaluator:
 
             # Avod average losses dictionary
             eval_avod_losses = self._create_avod_losses_dict()
+            print("full model")
 
         num_valid_samples = 0
 
@@ -292,6 +293,7 @@ class Evaluator:
 
             else:
                 # Test mode --> train_val_test == 'test'
+                print("test mode")
                 inference_start_time = time.time()
                 # Don't calculate loss or run summaries for test
                 predictions = self._sess.run(self._prediction_dict,
@@ -308,8 +310,9 @@ class Evaluator:
                     self.get_avod_predicted_boxes_3d_and_scores(predictions,
                                                                 box_rep)
 
-                np.savetxt(rpn_file_path, proposals_and_scores, fmt='%.3f')
-                np.savetxt(avod_file_path, predictions_and_scores, fmt='%.5f')
+                #print("predict:", predictions_and_scores)
+                #np.savetxt(rpn_file_path, proposals_and_scores, fmt='%.3f')
+                #np.savetxt(avod_file_path, predictions_and_scores, fmt='%.5f')
 
         # end while current_epoch == model.dataset.epochs_completed:
 
@@ -331,6 +334,7 @@ class Evaluator:
                 # Store predictions in kitti format
                 if self.do_kitti_native_eval:
                     self.run_kitti_native_eval(global_step)
+                    print("kitti native aval")
 
         else:
             # Test mode --> train_val_test == 'test'
@@ -369,6 +373,7 @@ class Evaluator:
                 # Restore the most recent checkpoint
                 ckpt_idx = num_checkpoints - 1
                 ckpt_indices = [ckpt_idx]
+                print(ckpt_idx, num_checkpoints, ckpt_indices)
             for ckpt_idx in ckpt_indices:
                 checkpoint_to_restore = self._saver.last_checkpoints[ckpt_idx]
                 self.run_checkpoint_once(checkpoint_to_restore)
