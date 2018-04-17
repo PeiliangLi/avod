@@ -161,6 +161,34 @@ class KittiUtils(object):
 
         return point_cloud
 
+    def get_point_cloud_from_file(self, source, calib, velo_dir, image_shape=None):
+        """ Gets the points from the point cloud for a particular image,
+            keeping only the points within the area extents, and takes a slice
+            between self._ground_filter_offset and self._offset_distance above
+            the ground plane
+
+        Args:
+            source: point cloud source, e.g. 'lidar'
+            img_idx: An integer sample image index, e.g. 123 or 500
+            image_shape: image dimensions (h, w), only required when
+                source is 'lidar' or 'depth'
+
+        Returns:
+            The set of points in the shape (N, 3)
+        """
+
+        if source == 'lidar':
+            # wavedata wants im_size in (w, h) order
+            im_size = [image_shape[1], image_shape[0]]
+
+            point_cloud = obj_utils.get_lidar_point_cloud_from_file(
+                calib, velo_dir, im_size=im_size)
+
+        else:
+            raise ValueError("Invalid source {}".format(source))
+
+        return point_cloud
+    
     def get_ground_plane(self, sample_name):
         """Reads the ground plane for the sample
 
