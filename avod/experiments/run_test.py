@@ -18,6 +18,14 @@ from avod.core.models.rpn_model import RpnModel
 from avod.core.evaluator import Evaluator
 
 from avod.core import trainer_utils
+from wavedata.wavedata.tools.core import calib_utils
+from wavedata.wavedata.tools.visualization import vis_utils
+from avod.core import box_3d_encoder
+from avod.core import box_3d_projector
+from demos.show_predictions_2d import draw_predictions
+from demos.kitti_bev_vis import draw_boxes
+import cv2
+from PIL import Image
 
 def get_avod_predicted_boxes_3d_and_scores(predictions):
     """Returns the predictions and scores stacked for saving to file.
@@ -205,7 +213,118 @@ def test(model_config, eval_config,
             print("inference time:", inference_time)
 
             predictions_and_scores = get_avod_predicted_boxes_3d_and_scores(predictions)
-            print(predictions_and_scores)
+
+            #print(predictions_and_scores)
+            #im_path = os.path.join(dataset_dir, 'training/image_2/{:06d}.png'.format(img_idx))
+            #im = cv2.imread(im_path)
+            #cv2.imshow('result',im)
+            #cv2.waitKey(30)
+
+            prediction_boxes_3d = predictions_and_scores[:, 0:7]
+            prediction_scores = predictions_and_scores[:, 7]
+            prediction_class_indices = predictions_and_scores[:, 8]
+            gt_classes = ['Car']
+            fig_size = (10, 6.1)
+
+            avod_score_threshold = 0.1
+            if len(prediction_boxes_3d) > 0:
+
+                # Apply score mask
+                avod_score_mask = prediction_scores >= avod_score_threshold
+                prediction_boxes_3d = prediction_boxes_3d[avod_score_mask]
+                prediction_scores = prediction_scores[avod_score_mask]
+                prediction_class_indices = \
+                    prediction_class_indices[avod_score_mask]
+
+            if len(prediction_boxes_3d) > 0:
+
+                dataset_dir = model.dataset.dataset_dir
+                sample_name = (model.dataset.sample_names[model.dataset._index_in_epoch - 1])
+                img_idx = int(sample_name)
+                print("frame_index",img_idx)
+                image_path = model.dataset.get_rgb_image_path(sample_name)
+                image = Image.open(image_path)
+                image_size = image.size
+
+                if model.dataset.has_labels:
+                    gt_objects = obj_utils.read_labels(dataset.label_dir, img_idx)
+                else:
+                    gt_objects = []
+                filtered_gt_objs = model.dataset.kitti_utils.filter_labels(
+                    gt_objects, classes=gt_classes)
+
+                stereo_calib = calib_utils.read_calibration(dataset.calib_dir,
+                                                            img_idx)
+                calib_p2 = stereo_calib.p2
+                # Project the 3D box predictions to image space
+                image_filter = []
+                final_boxes_2d = []
+                for i in range(len(prediction_boxes_3d)):
+                    box_3d = prediction_boxes_3d[i, 0:7]
+                    img_box = box_3d_projector.project_to_image_space(
+                        box_3d, calib_p2,
+                        truncate=True, image_size=image_size,
+                        discard_before_truncation=False)
+                    if img_box is not None:
+                        image_filter.append(True)
+                        final_boxes_2d.append(img_box)
+                    else:
+                        image_filter.append(False)
+                final_boxes_2d = np.asarray(final_boxes_2d)
+                final_prediction_boxes_3d = prediction_boxes_3d[image_filter]
+                final_scores = prediction_scores[image_filter]
+                final_class_indices = prediction_class_indices[image_filter]
+
+                num_of_predictions = final_boxes_2d.shape[0]
+
+                # Convert to objs
+                final_prediction_objs = \
+                    [box_3d_encoder.box_3d_to_object_label(
+                        prediction, obj_type='Prediction')
+                        for prediction in final_prediction_boxes_3d]
+                for (obj, score) in zip(final_prediction_objs, final_scores):
+                    obj.score = score
+
+                pred_fig, pred_2d_axes, pred_3d_axes = \
+                    vis_utils.visualization(dataset.rgb_image_dir,
+                                            img_idx,
+                                            display=False,
+                                            fig_size=fig_size)
+
+                draw_predictions(filtered_gt_objs,
+                                 calib_p2,
+                                 num_of_predictions,
+                                 final_prediction_objs,
+                                 final_class_indices,
+                                 final_boxes_2d,
+                                 pred_2d_axes,
+                                 pred_3d_axes,
+                                 True,
+                                 True,
+                                 gt_classes,
+                                 False)
+
+                #cv2.imshow('result',pred_fig)
+                print(type(pred_fig))
+                pred_fig.canvas.draw()
+                img = np.fromstring(pred_fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+                img  = img.reshape(pred_fig.canvas.get_width_height()[::-1] + (3,))
+                cv2.imshow('result',img)
+
+                #draw bird view
+                kitti_utils = model.dataset.kitti_utils
+                print(img.shape[0:2])
+                point_cloud = kitti_utils.get_point_cloud(
+                    'lidar', img_idx, (370, 1242))
+                ground_plane = kitti_utils.get_ground_plane(sample_name)
+                bev_images = kitti_utils.create_bev_maps(point_cloud, ground_plane)
+
+                density_map = np.array(bev_images.get("density_map"))
+                _, box_points_norm = box_3d_projector.project_to_bev(
+                    final_prediction_boxes_3d, [[-40, 40], [0, 70]])
+                density_map = draw_boxes(density_map, box_points_norm)
+                cv2.imshow('lidar',density_map)
+                cv2.waitKey(-1)
 
 def main(_):
 

@@ -105,6 +105,7 @@ def main():
     image_shape = image.shape[0:2]
 
     kitti_utils = dataset.kitti_utils
+    print(image_shape)
     point_cloud = kitti_utils.get_point_cloud(
         point_cloud_source, img_idx, image_shape)
     ground_plane = kitti_utils.get_ground_plane(sample_name)
@@ -117,7 +118,7 @@ def main():
     if show_ground_truth:
         # Get projected boxes
         obj_labels = obj_utils.read_labels(dataset.label_dir, img_idx)
-
+        print(obj_labels)
         filtered_objs = obj_labels
 
         label_boxes = []
@@ -126,6 +127,7 @@ def main():
             label_boxes.append(box)
 
         label_boxes = np.array(label_boxes)
+        print(label_boxes)
         box_points, box_points_norm = box_3d_projector.project_to_bev(
             label_boxes, [[-40, 40], [0, 70]])
 
